@@ -1,24 +1,6 @@
 ### Digital Credentials API (OpenID4VP-over-DC-API / mso_mdoc) ###
 #
-# Ported from w.py, which exercises the same mdoc-building logic against
-# digital-credentials.dev over plain HTTPS. Here the "request" JSON is the
-# one carried inside a FRAME_JSON hybrid frame (matching the shape passed to
-# navigator.credentials.get({digital: {requests: [...]}})) instead of an
-# /api/getRequest HTTP response, and the built vp_token goes back over the
-# tunnel instead of to /api/validateResponse.
-#
-# The response envelope sent back over the tunnel is
-# {"response": {"digital": {"data": {"protocol": ..., "data": {"vp_token": {cred_id: [mdoc_b64]}}}}}}
-# -- confirmed against a real device-log capture of CMWallet's own response.
-# Notable gotchas found by trial and error / that capture:
-#   - top-level "response" wrapper is required (device-log: "no 'response'
-#     element in response")
-#   - "digital" wrapper is required (device-log: "no 'digital' element")
-#   - there's a second "data" layer: digital.data.{protocol, data}, not
-#     digital.{protocol, data} directly (device-log: "response missing both
-#     'error' and 'data'" when that layer was missing)
-#   - each vp_token entry is a LIST of matched-credential mdocs (DCQL query
-#     ids can match multiple credentials), not a bare string.
+# Adapted from CMWallet and accompanying verifier at digital-credentials.dev
 
 import base64
 import datetime

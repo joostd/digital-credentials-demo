@@ -574,6 +574,8 @@ async def handler(websocket):
         request_json = json.loads(payload.decode())
         logging.info("DC API request:\n%s", json.dumps(request_json, indent=2))
 
+        # The response envelope sent back over the tunnel is
+        # {"response": {"digital": {"data": {"protocol": ..., "data": {"vp_token": {cred_id: [mdoc_b64]}}}}}}
         try:
             response_json = {"response": {"digital": {"data": mdoc.build_dc_api_response(request_json)}}}
         except Exception as exc:
