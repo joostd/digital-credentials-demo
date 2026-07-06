@@ -27,6 +27,8 @@ from cryptography.hazmat.primitives.serialization import (
     Encoding, PrivateFormat, NoEncryption, load_pem_private_key,
 )
 
+import mdoc
+
 import websockets
 from websockets import serve
 
@@ -569,10 +571,16 @@ async def handler(websocket):
             logging.warning("Unexpected frame type 0x%02x -- ignoring", frame_type)
             continue
 
-        print(payload.decode())
+        request_json = json.loads(payload.decode())
+        logging.info("DC API request:\n%s", json.dumps(request_json, indent=2))
 
-        #ctap_response = await _dispatch_ctap_async(payload)
-        json_response = json.dumps({}).encode()
+        try:
+            response_json = {"response": {"digital": {"data": mdoc.build_dc_api_response(request_json)}}}
+        except Exception as exc:
+            logging.error("Failed to build DC API response: %r", exc)
+            response_json = {"error": "invalid_request"}
+        json_response = json.dumps(response_json).encode()
+        logging.info("DC API response: json response=%s", json_response)
 
         response_frame = bytes([FRAME_JSON]) + json_response
         await websocket.send(_channel_encrypt(send_cipher, response_frame))
